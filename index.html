@@ -117,32 +117,6 @@
     margin: 0 0 32px;
   }
 
-  label.field-label {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.03em;
-    color: var(--text-faint);
-    display: block;
-    margin-bottom: 10px;
-  }
-
-  input[type="text"].name-input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 16px;
-    padding: 14px 16px;
-    border-radius: 10px;
-    outline: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  }
-  input[type="text"].name-input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
-  }
-
   .btn {
     font-family: var(--font-mono);
     font-size: 14.5px;
@@ -339,18 +313,16 @@
 <div class="grid-overlay"></div>
 
 <div class="shell">
-  <div class="eyebrow">OSS LET'S CONNECT · MAINTAINER VOICES</div>
+  <div class="eyebrow">OSS LET'S CONNECT · VOICES</div>
 
   <!-- Screen 1: Welcome -->
   <section class="screen active" id="screen-welcome">
     <h1>Two minutes of your voice could save someone's first pull request.</h1>
     <p class="lead">
-      We're collecting real answers from real maintainers to the situations new contributors get stuck on most —
-      no essay, no login. Just a few questions, answered however's easiest: type, or talk and we'll do the typing.
-      Thank you for taking the time.
+      We're collecting real answers from experienced open-source contributors and maintainers to the situations
+      newer contributors get stuck on most — no essay, no login. Just a few questions, answered however's easiest:
+      type, or talk and we'll do the typing. Thank you for taking the time.
     </p>
-    <label class="field-label" for="name-input">What should we call you? (optional — leave blank to stay anonymous)</label>
-    <input type="text" id="name-input" class="name-input" placeholder="e.g. Priya, or leave it blank" autocomplete="off">
     <div class="start-row" style="margin-top:22px;">
       <button class="btn btn-primary" id="start-btn">Let's go →</button>
     </div>
@@ -426,6 +398,7 @@
   "use strict";
 
   const QUESTIONS = [
+    { entryField: "entry-name", text: "What should we call you? (optional — leave blank to stay anonymous)" },
     { entryField: "entry-0", text: "How do you find the best project to contribute to — is it based on the tech stack, or on finding one with less crowded contribution?" },
     { entryField: "entry-1", text: "How do you find the best issue to work on? Should you use AI to find it, or manually?" },
     { entryField: "entry-2", text: "Suppose you opened an issue and someone else picked it up — what do you do in that situation?" },
@@ -465,7 +438,6 @@
     screens[name].classList.add("active");
   }
 
-  const nameInput = document.getElementById("name-input");
   const startBtn = document.getElementById("start-btn");
   const questionText = document.getElementById("question-text");
   const answerBox = document.getElementById("answer-box");
@@ -616,7 +588,6 @@
   }
 
   submitBtn.addEventListener("click", () => {
-    document.getElementById("entry-name").value = nameInput.value.trim();
     QUESTIONS.forEach((q, i) => {
       document.getElementById(q.entryField).value = answers[i];
     });
@@ -625,7 +596,8 @@
     document.getElementById("gform").submit();
 
     setTimeout(() => {
-      thanksName.textContent = nameInput.value.trim() ? nameInput.value.trim() + ", " : "";
+      const name = answers[0].trim();
+      thanksName.textContent = name ? name + ", " : "";
       showScreen("thanks");
       submitBtn.textContent = "Submit answers";
     }, 650);
