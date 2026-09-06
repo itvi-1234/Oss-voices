@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSS Voices</title>
+<meta name="description" content="Real questions, real maintainers, real answers — spoken, not typed.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b10;
+    --bg-soft: #12141c;
+    --surface: #171a24;
+    --surface-2: #1f2330;
+    --border: #2a2f3f;
+    --text: #eceef4;
+    --text-dim: #9095a8;
+    --text-faint: #5b6178;
+    --accent: #8b7cf6;
+    --accent-soft: rgba(139, 124, 246, 0.14);
+    --accent-strong: #a99bff;
+    --mint: #38e6b5;
+    --mint-soft: rgba(56, 230, 181, 0.14);
+    --danger: #ff6b6b;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+    --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100%;
+    overscroll-behavior: none;
+  }
+
+  body {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  .glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(560px circle at var(--gx, 50%) var(--gy, 30%), var(--accent-soft), transparent 60%);
+    transition: background 0.15s ease;
+    z-index: 0;
+  }
+
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.028) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.028) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(circle at 50% 20%, black, transparent 75%);
+    z-index: 0;
+  }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 640px;
+    padding: 48px 24px 140px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    color: var(--mint);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .eyebrow::before { content: "●"; font-size: 8px; animation: blink 1.8s ease-in-out infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+  .screen { display: none; flex-direction: column; flex: 1; animation: rise 0.5s ease both; }
+  .screen.active { display: flex; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+  h1 {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: clamp(26px, 5vw, 36px);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  h1 .accent { color: var(--accent-strong); }
+
+  p.lead {
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--text-dim);
+    max-width: 52ch;
+    margin: 0 0 32px;
+  }
+
+  label.field-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    color: var(--text-faint);
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  input[type="text"].name-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  input[type="text"].name-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border: none;
+    border-radius: 10px;
+    padding: 15px 26px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease, opacity 0.15s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 3px; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #7566e0);
+    color: #0a0b10;
+    box-shadow: 0 8px 24px -8px rgba(139, 124, 246, 0.55);
+  }
+  .btn-primary:hover { box-shadow: 0 10px 28px -6px rgba(139, 124, 246, 0.65); }
+  .btn-primary:disabled {
+    background: var(--surface-2);
+    color: var(--text-faint);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  .btn-ghost {
+    background: var(--surface);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text-faint); }
+
+  .start-row { margin-top: 8px; }
+
+  /* --- question screen --- */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .progress-label {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+  }
+  .dots { display: flex; gap: 7px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: background 0.2s ease, transform 0.2s ease; }
+  .dot.done { background: var(--mint); }
+  .dot.current { background: var(--accent); transform: scale(1.35); }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .question-text {
+    font-family: var(--font-mono);
+    font-size: clamp(19px, 3.4vw, 23px);
+    line-height: 1.45;
+    font-weight: 500;
+    margin: 0 0 22px;
+    text-wrap: balance;
+  }
+
+  .voice-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+
+  .icon-btn {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 10px 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .icon-btn:hover { border-color: var(--text-faint); }
+  .icon-btn.recording {
+    background: rgba(255, 107, 107, 0.12);
+    border-color: var(--danger);
+    color: #ffb4b4;
+  }
+  .mic-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--mint); flex: none;
+  }
+  .icon-btn.recording .mic-dot {
+    background: var(--danger);
+    animation: pulse-dot 1.1s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,107,0.5); }
+    50% { box-shadow: 0 0 0 6px rgba(255,107,107,0); }
+  }
+
+  textarea.answer-box {
+    width: 100%;
+    flex: 1;
+    min-height: 140px;
+    resize: vertical;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15.5px;
+    line-height: 1.6;
+    padding: 16px;
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  textarea.answer-box:focus { border-color: var(--accent); }
+  textarea.answer-box::placeholder { color: var(--text-faint); }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 22px;
+  }
+
+  .unsupported-note {
+    font-size: 13px;
+    color: var(--text-faint);
+    margin: -10px 0 20px;
+    font-style: italic;
+  }
+
+  /* --- floating submit bar --- */
+  .submit-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    width: min(92%, 592px);
+    background: rgba(23, 26, 36, 0.88);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    z-index: 5;
+    box-shadow: 0 18px 40px -20px rgba(0,0,0,0.6);
+  }
+  .submit-bar-status {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .submit-bar-status strong { color: var(--mint); }
+
+  /* --- thank you screen --- */
+  .thanks-mark {
+    font-family: var(--font-mono);
+    font-size: 46px;
+    color: var(--mint);
+    margin-bottom: 18px;
+  }
+
+  .footer-note {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--text-faint);
+    margin-top: auto;
+    padding-top: 40px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .screen, .eyebrow::before, .icon-btn.recording .mic-dot { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow" id="glow"></div>
+<div class="grid-overlay"></div>
+
+<div class="shell">
+  <div class="eyebrow">OSS LET'S CONNECT · MAINTAINER VOICES</div>
+
+  <!-- Screen 1: Welcome -->
+  <section class="screen active" id="screen-welcome">
+    <h1>Two minutes of your voice could save someone's first pull request.</h1>
+    <p class="lead">
+      We're collecting real answers from real maintainers to the situations new contributors get stuck on most —
+      no essay, no login. Just a few questions, answered however's easiest: type, or talk and we'll do the typing.
+      Thank you for taking the time.
+    </p>
+    <label class="field-label" for="name-input">What should we call you? (shown on this screen only — never saved anywhere)</label>
+    <input type="text" id="name-input" class="name-input" placeholder="e.g. Priya, or leave it blank" autocomplete="off">
+    <div class="start-row" style="margin-top:22px;">
+      <button class="btn btn-primary" id="start-btn">Let's go →</button>
+    </div>
+  </section>
+
+  <!-- Screen 2: Questions -->
+  <section class="screen" id="screen-questions">
+    <div class="progress-row">
+      <span class="progress-label" id="progress-label">QUESTION 1 / 3</span>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="question-card">
+      <p class="question-text" id="question-text"></p>
+
+      <div class="voice-row">
+        <button class="icon-btn" id="play-btn" type="button">🔊 Hear it</button>
+        <button class="icon-btn" id="mic-btn" type="button"><span class="mic-dot"></span> Answer by voice</button>
+      </div>
+      <p class="unsupported-note" id="mic-unsupported" hidden>Voice input isn't supported in this browser — just type your answer below.</p>
+
+      <textarea class="answer-box" id="answer-box" placeholder="Type here, or hit “Answer by voice” and just talk — you can edit it after."></textarea>
+
+      <div class="nav-row">
+        <button class="btn btn-ghost" id="back-btn">← Back</button>
+        <button class="btn btn-ghost" id="next-btn">Next →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen 3: Thank you -->
+  <section class="screen" id="screen-thanks">
+    <div class="thanks-mark">$ done ✓</div>
+    <h1><span id="thanks-name"></span>Thank you, that genuinely helps.</h1>
+    <p class="lead">
+      Your answer just became something a first-time contributor will read at exactly the moment they needed it.
+      You can close this tab — or answer again anytime, it just adds another entry.
+    </p>
+    <div class="start-row">
+      <button class="btn btn-ghost" id="again-btn">← Answer again</button>
+    </div>
+  </section>
+
+  <p class="footer-note">Answers go straight into a shared spreadsheet reviewed before anything is published. Nothing here is stored on this device.</p>
+</div>
+
+<!-- hidden submission target -->
+<iframe name="hidden_submit_frame" style="display:none" title="submission target"></iframe>
+<form id="gform"
+      action="https://docs.google.com/forms/d/e/1FAIpQLSc1mkKjxIQe29g0FkWvxpbSLTaLYQodFXEil4_t_DtqWLC5NQ/formResponse"
+      method="POST" target="hidden_submit_frame" style="display:none">
+  <input type="text" name="entry.188269187" id="entry-0">
+  <input type="text" name="entry.232110331" id="entry-1">
+  <input type="text" name="entry.1396622354" id="entry-2">
+</form>
+
+<script>
+(function () {
+  "use strict";
+
+  const QUESTIONS = [
+    { entryField: "entry-0", text: "How do you find a good issue to work on?" },
+    { entryField: "entry-1", text: "How do you write a good issue description?" },
+    { entryField: "entry-2", text: "Where's the line between healthy AI-assisted work and low-effort AI spam?" }
+  ];
+
+  const answers = QUESTIONS.map(() => "");
+  let current = 0;
+  let recognizing = false;
+  let recognitionBaseText = "";
+
+  const glow = document.getElementById("glow");
+  window.addEventListener("pointermove", (e) => {
+    glow.style.setProperty("--gx", e.clientX + "px");
+    glow.style.setProperty("--gy", e.clientY + "px");
+  }, { passive: true });
+
+  const screens = {
+    welcome: document.getElementById("screen-welcome"),
+    questions: document.getElementById("screen-questions"),
+    thanks: document.getElementById("screen-thanks")
+  };
+  function showScreen(name) {
+    Object.values(screens).forEach((s) => s.classList.remove("active"));
+    screens[name].classList.add("active");
+  }
+
+  const nameInput = document.getElementById("name-input");
+  const startBtn = document.getElementById("start-btn");
+  const questionText = document.getElementById("question-text");
+  const answerBox = document.getElementById("answer-box");
+  const progressLabel = document.getElementById("progress-label");
+  const dotsWrap = document.getElementById("dots");
+  const backBtn = document.getElementById("back-btn");
+  const nextBtn = document.getElementById("next-btn");
+  const playBtn = document.getElementById("play-btn");
+  const micBtn = document.getElementById("mic-btn");
+  const micUnsupported = document.getElementById("mic-unsupported");
+  const thanksName = document.getElementById("thanks-name");
+  const againBtn = document.getElementById("again-btn");
+
+  QUESTIONS.forEach(() => {
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    dotsWrap.appendChild(dot);
+  });
+
+  function renderDots() {
+    [...dotsWrap.children].forEach((dot, i) => {
+      dot.classList.toggle("current", i === current);
+      dot.classList.toggle("done", answers[i].trim().length > 0 && i !== current);
+    });
+  }
+
+  function renderQuestion() {
+    questionText.textContent = QUESTIONS[current].text;
+    answerBox.value = answers[current];
+    progressLabel.textContent = `QUESTION ${current + 1} / ${QUESTIONS.length}`;
+    backBtn.style.visibility = current === 0 ? "hidden" : "visible";
+    nextBtn.textContent = current === QUESTIONS.length - 1 ? "Done for now" : "Next →";
+    renderDots();
+    stopRecognition();
+    updateSubmitBar();
+  }
+
+  answerBox.addEventListener("input", () => {
+    answers[current] = answerBox.value;
+    renderDots();
+    updateSubmitBar();
+  });
+
+  startBtn.addEventListener("click", () => {
+    showScreen("questions");
+    renderQuestion();
+  });
+
+  backBtn.addEventListener("click", () => {
+    if (current > 0) { current -= 1; renderQuestion(); }
+  });
+  nextBtn.addEventListener("click", () => {
+    if (current < QUESTIONS.length - 1) { current += 1; renderQuestion(); }
+  });
+
+  againBtn.addEventListener("click", () => {
+    current = 0;
+    showScreen("questions");
+    renderQuestion();
+  });
+
+  // --- Text to speech ---
+  const ttsSupported = "speechSynthesis" in window;
+  playBtn.addEventListener("click", () => {
+    if (!ttsSupported) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(QUESTIONS[current].text);
+    utter.rate = 0.98;
+    window.speechSynthesis.speak(utter);
+  });
+  if (!ttsSupported) playBtn.disabled = true;
+
+  // --- Speech to text ---
+  const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+  if (SpeechRecognitionCtor) {
+    recognition = new SpeechRecognitionCtor();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event) => {
+      let interim = "";
+      let finalChunk = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) finalChunk += transcript + " ";
+        else interim += transcript;
+      }
+      if (finalChunk) recognitionBaseText = (recognitionBaseText + " " + finalChunk).trim();
+      answerBox.value = (recognitionBaseText + " " + interim).trim();
+      answers[current] = answerBox.value;
+      renderDots();
+      updateSubmitBar();
+    };
+    recognition.onerror = () => stopRecognition();
+    recognition.onend = () => {
+      if (recognizing) { recognizing = false; setMicState(false); }
+    };
+  } else {
+    micUnsupported.hidden = false;
+    micBtn.disabled = true;
+  }
+
+  function setMicState(isOn) {
+    micBtn.classList.toggle("recording", isOn);
+    micBtn.innerHTML = isOn
+      ? '<span class="mic-dot"></span> Listening… tap to stop'
+      : '<span class="mic-dot"></span> Answer by voice';
+  }
+
+  function stopRecognition() {
+    if (recognition && recognizing) {
+      recognizing = false;
+      try { recognition.stop(); } catch (e) { /* no-op */ }
+    }
+    setMicState(false);
+  }
+
+  micBtn.addEventListener("click", () => {
+    if (!recognition) return;
+    if (recognizing) {
+      stopRecognition();
+      return;
+    }
+    recognitionBaseText = answerBox.value;
+    recognizing = true;
+    setMicState(true);
+    try { recognition.start(); } catch (e) { /* already started */ }
+  });
+
+  // --- Floating submit bar ---
+  const submitBar = document.createElement("div");
+  submitBar.className = "submit-bar";
+  submitBar.innerHTML = `
+    <span class="submit-bar-status" id="submit-status">0 / ${QUESTIONS.length} answered</span>
+    <button class="btn btn-primary" id="submit-btn" disabled>Submit answers</button>
+  `;
+  document.body.appendChild(submitBar);
+  const submitStatus = document.getElementById("submit-status");
+  const submitBtn = document.getElementById("submit-btn");
+
+  function updateSubmitBar() {
+    const answeredCount = answers.filter((a) => a.trim().length > 0).length;
+    submitStatus.innerHTML = `<strong>${answeredCount}</strong> / ${QUESTIONS.length} answered`;
+    submitBtn.disabled = answeredCount === 0;
+    submitBar.style.display = screens.questions.classList.contains("active") ? "flex" : "none";
+  }
+
+  submitBtn.addEventListener("click", () => {
+    QUESTIONS.forEach((q, i) => {
+      document.getElementById(q.entryField).value = answers[i];
+    });
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending…";
+    document.getElementById("gform").submit();
+
+    setTimeout(() => {
+      thanksName.textContent = nameInput.value.trim() ? nameInput.value.trim() + ", " : "";
+      showScreen("thanks");
+      submitBtn.textContent = "Submit answers";
+    }, 650);
+  }, false);
+
+  updateSubmitBar();
+})();
+</script>
+
+</body>
+</html>
