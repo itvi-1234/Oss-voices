@@ -349,7 +349,7 @@
       no essay, no login. Just a few questions, answered however's easiest: type, or talk and we'll do the typing.
       Thank you for taking the time.
     </p>
-    <label class="field-label" for="name-input">What should we call you? (shown on this screen only — never saved anywhere)</label>
+    <label class="field-label" for="name-input">What should we call you? (optional — leave blank to stay anonymous)</label>
     <input type="text" id="name-input" class="name-input" placeholder="e.g. Priya, or leave it blank" autocomplete="off">
     <div class="start-row" style="margin-top:22px;">
       <button class="btn btn-primary" id="start-btn">Let's go →</button>
@@ -402,9 +402,23 @@
 <form id="gform"
       action="https://docs.google.com/forms/d/e/1FAIpQLSc1mkKjxIQe29g0FkWvxpbSLTaLYQodFXEil4_t_DtqWLC5NQ/formResponse"
       method="POST" target="hidden_submit_frame" style="display:none">
+  <input type="text" name="entry.1319780931" id="entry-name">
   <input type="text" name="entry.188269187" id="entry-0">
   <input type="text" name="entry.232110331" id="entry-1">
   <input type="text" name="entry.1396622354" id="entry-2">
+  <input type="text" name="entry.778840391" id="entry-3">
+  <input type="text" name="entry.647652491" id="entry-4">
+  <input type="text" name="entry.1951003706" id="entry-5">
+  <input type="text" name="entry.649821346" id="entry-6">
+  <input type="text" name="entry.255537888" id="entry-7">
+  <input type="text" name="entry.1834730909" id="entry-8">
+  <input type="text" name="entry.50725506" id="entry-9">
+  <input type="text" name="entry.1221511164" id="entry-10">
+  <input type="text" name="entry.863253492" id="entry-11">
+  <input type="text" name="entry.1770414807" id="entry-12">
+  <input type="text" name="entry.1074506219" id="entry-13">
+  <input type="text" name="entry.716162737" id="entry-14">
+  <input type="text" name="entry.815942637" id="entry-15">
 </form>
 
 <script>
@@ -412,9 +426,22 @@
   "use strict";
 
   const QUESTIONS = [
-    { entryField: "entry-0", text: "How do you find a good issue to work on?" },
-    { entryField: "entry-1", text: "How do you write a good issue description?" },
-    { entryField: "entry-2", text: "Where's the line between healthy AI-assisted work and low-effort AI spam?" }
+    { entryField: "entry-0", text: "How do you find the best project to contribute to — is it based on the tech stack, or on finding one with less crowded contribution?" },
+    { entryField: "entry-1", text: "How do you find the best issue to work on? Should you use AI to find it, or manually?" },
+    { entryField: "entry-2", text: "Suppose you opened an issue and someone else picked it up — what do you do in that situation?" },
+    { entryField: "entry-3", text: "There are 10 unassigned issues you can see, and you could use the /assign command to assign yourself all of them — should you?" },
+    { entryField: "entry-4", text: "You're new, you don't know any tech stack, but you're motivated to contribute to open source — what do you do?" },
+    { entryField: "entry-5", text: "You're unable to find issues — should you use AI to generate a list, or do user testing instead? And if you use AI to generate issues, how do you make sure someone else isn't already working on the same one, since AI tools give the same suggestions to many people?" },
+    { entryField: "entry-6", text: "You've picked the best issue, but you don't know how to implement it, and you still want to work on the PR — how do you approach that?" },
+    { entryField: "entry-7", text: "A PR is taking too long to get merged because maintainers aren't active — what do you do?" },
+    { entryField: "entry-8", text: "How can you tell if a project is still active or not?" },
+    { entryField: "entry-9", text: "How do you become the best contributor — is it just issues and PRs, or is there more to it?" },
+    { entryField: "entry-10", text: "What can you actually contribute in community meets, instead of just joining and staying silent?" },
+    { entryField: "entry-11", text: "How do you write the best proposal?" },
+    { entryField: "entry-12", text: "You've opened a PR — how do you nudge maintainers to review it, and if you've already pinged them on Slack with no response, what next?" },
+    { entryField: "entry-13", text: "Is there a minimum PR count required to get into GSoC or LFX?" },
+    { entryField: "entry-14", text: "Is open source just GSoC and LFX? What do you feel open source really is?" },
+    { entryField: "entry-15", text: "Any basic etiquette you'd suggest to new contributors — and anything beyond the basics too?" }
   ];
 
   const answers = QUESTIONS.map(() => "");
@@ -589,6 +616,7 @@
   }
 
   submitBtn.addEventListener("click", () => {
+    document.getElementById("entry-name").value = nameInput.value.trim();
     QUESTIONS.forEach((q, i) => {
       document.getElementById(q.entryField).value = answers[i];
     });
